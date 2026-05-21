@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XX/XX 更能回应世界｜辩论 BP 小工具</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #ec4899;
+      --accent-soft: #fce7f3;
+      --blue: #3b82f6;
+      --blue-soft: #dbeafe;
+      --green: #10b981;
+      --green-soft: #d1fae5;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --shadow: 0 18px 45px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #fff1f2 0, transparent 32%), var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, .88);
+      border: 1px solid rgba(229, 231, 235, .8);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -1.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .topic-preview {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--accent-soft), #fff);
+      border: 1px solid #fbcfe8;
+    }
+
+    .topic-preview .label {
+      color: #be185d;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .topic-preview .topic {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .rules {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .rule {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .rule span {
+      flex: 0 0 auto;
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: #be185d;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -.3px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      color: #374151;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 15px;
+      outline: none;
+      background: #fff;
+      transition: .18s ease;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(236, 72, 153, .12);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #fff;
+      background: var(--accent);
+      transition: .18s ease;
+    }
+
+    button:hover { transform: translateY(-1px); filter: brightness(.98); }
+    button.secondary { color: #374151; background: #f3f4f6; }
+    button.blue { background: var(--blue); }
+    button.green { background: var(--green); }
+    button.red { background: var(--red); }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-height: 290px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #374151;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: .16s ease;
+    }
+
+    .chip:hover { border-color: var(--accent); color: #be185d; }
+    .chip.banned-pro { background: var(--blue-soft); border-color: #93c5fd; color: #1d4ed8; }
+    .chip.banned-con { background: var(--red-soft); border-color: #fca5a5; color: #b91c1c; }
+    .chip.selected-pro { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .chip.selected-con { background: var(--red); border-color: var(--red); color: #fff; }
+    .chip.disabled { opacity: .36; cursor: not-allowed; text-decoration: line-through; }
+
+    .side-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .side-card.pro { border-color: #bfdbfe; background: linear-gradient(180deg, #eff6ff, #fff); }
+    .side-card.con { border-color: #fecaca; background: linear-gradient(180deg, #fff1f2, #fff); }
+
+    .side-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .badge.pro { background: var(--blue-soft); color: #1d4ed8; }
+    .badge.con { background: var(--red-soft); color: #b91c1c; }
+    .badge.neutral { background: #f3f4f6; color: #4b5563; }
+
+    .slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 48px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 8px 0;
+    }
+
+    .chosen-box {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .result {
+      margin-top: 16px;
+      border-radius: 22px;
+      padding: 18px;
+      background: #111827;
+      color: #fff;
+      display: none;
+    }
+
+    .result.show { display: block; }
+    .result strong { color: #f9a8d4; }
+    .result p { margin: 8px 0 0; color: #d1d5db; line-height: 1.7; }
+
+    .export-box {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #374151;
+      background: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 120px;
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    @media (max-width: 880px) {
+      .hero, .grid, .chosen-box { grid-template-columns: 1fr; }
+      .panel { padding: 18px; border-radius: 22px; }
+      .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="panel">
+        <h1>XX / XX 更能回应世界</h1>
+        <p class="subtitle">一个本地单页 HTML 原型。可以用来做辩题生成，正反双方禁词，双方选词，重复选词后的替换提示，以及最终同步到群里的整理文本。</p>
+        <div class="topic-preview">
+          <div class="label">当前辩题</div>
+          <div class="topic"><span id="topicLeft">文学</span> / <span id="topicRight">电影</span> 更能回应世界</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h2>规则说明</h2>
+          <span class="badge neutral">线下 / 私信版</span>
+        </div>
+        <div class="rules">
+          <div class="rule"><span>1</span><div>正反双方各自 ban 掉 8 个词。点击词库中的词即可加入当前阵营禁词。</div></div>
+          <div class="rule"><span>2</span><div>双方再各自选择一个词语进入辩题，系统会自动更新题面。</div></div>
+          <div class="rule"><span>3</span><div>如果双方选词相同，系统会提示需要由投段子点数较小的一方更换词汇。</div></div>
+          <div class="rule"><span>4</span><div>本页面不联网，不保存数据。适合截图，复制结果，或作为后续小程序原型。</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel full">
+        <div class="section-title">
+          <h2>基础设置</h2>
+          <span class="hint">可直接修改词库和点数</span>
+        </div>
+        <div class="controls">
+          <div>
+            <label for="proScore">正方段子点数</label>
+            <input id="proScore" type="number" value="6" min="0" />
+          </div>
+          <div>
+            <label for="conScore">反方段子点数</label>
+            <input id="conScore" type="number" value="4" min="0" />
+          </div>
+          <div class="full">
+            <label for="wordsInput">备选词表</label>
+            <textarea id="wordsInput">脱口秀、辩论、相声、说唱、演讲、文学、电影、音乐、绘画、戏剧、短视频、直播、新闻、小说、诗歌、散文、纪录片、动画、漫画、摄影、舞蹈、行为艺术、科研、教育、写作、公关、法律、历史、哲学、宗教、运动、旅行、美食、时尚、科技、设计、建筑、环保、游戏、播客、书信、沉默</textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button onclick="loadWords()">刷新词库</button>
+          <button class="secondary" onclick="resetAll()">重置全部</button>
+          <button class="green" onclick="randomTopic()">随机生成辩题</button>
+        </div>
+      </div>
+
+      <div class="panel full">
+        <div class="section-title">
+          <h2>词库</h2>
+          <span class="hint">先选择操作模式，再点词</span>
+        </div>
+        <div class="btn-row" style="margin-top:0;margin-bottom:16px;">
+          <button class="blue" onclick="setMode('ban-pro')">正方 ban 词</button>
+          <button class="red" onclick="setMode('ban-con')">反方 ban 词</button>
+          <button class="blue" onclick="setMode('pick-pro')">正方选词</button>
+          <button class="red" onclick="setMode('pick-con')">反方选词</button>
+          <button class="secondary" id="modeTip">当前模式：正方 ban 词</button>
+        </div>
+        <div class="word-bank" id="wordBank"></div>
+      </div>
+
+      <div class="side-card pro">
+        <div class="side-header">
+          <h2>正方</h2>
+          <span class="badge pro">最多 ban 8 个</span>
+        </div>
+        <label>正方禁词</label>
+        <div class="slots" id="proBans"></div>
+        <div style="height:14px"></div>
+        <label>正方选词</label>
+        <div class="slots" id="proPick"></div>
+      </div>
+
+      <div class="side-card con">
+        <div class="side-header">
+          <h2>反方</h2>
+          <span class="badge con">最多 ban 8 个</span>
+        </div>
+        <label>反方禁词</label>
+        <div class="slots" id="conBans"></div>
+        <div style="height:14px"></div>
+        <label>反方选词</label>
+        <div class="slots" id="conPick"></div>
+      </div>
+
+      <div class="panel full">
+        <div class="section-title">
+          <h2>判定与同步文本</h2>
+          <span class="hint">可复制到群里</span>
+        </div>
+        <div class="result" id="result"></div>
+        <div class="btn-row">
+          <button onclick="judge()">检查选词</button>
+          <button class="secondary" onclick="makeExportText()">生成同步文本</button>
+          <button class="secondary" onclick="copyExportText()">复制同步文本</button>
+        </div>
+        <div style="height:14px"></div>
+        <div class="export-box" id="exportText">点击“生成同步文本”后，这里会出现整理结果。</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let words = [];
+    let mode = 'ban-pro';
+    const state = {
+      proBans: [],
+      conBans: [],
+      proPick: '',
+      conPick: ''
+    };
+
+    function parseWords(text) {
+      return [...new Set(text.split(/[、,，\n\s]+/).map(w => w.trim()).filter(Boolean))];
+    }
+
+    function loadWords() {
+      words = parseWords(document.getElementById('wordsInput').value);
+      render();
+    }
+
+    function setMode(next) {
+      mode = next;
+      const label = {
+        'ban-pro': '正方 ban 词',
+        'ban-con': '反方 ban 词',
+        'pick-pro': '正方选词',
+        'pick-con': '反方选词'
+      }[mode];
+      document.getElementById('modeTip').textContent = '当前模式：' + label;
+    }
+
+    function isBanned(word) {
+      return state.proBans.includes(word) || state.conBans.includes(word);
+    }
+
+    function clickWord(word) {
+      if (mode === 'ban-pro') {
+        if (state.proBans.includes(word)) state.proBans = state.proBans.filter(x => x !== word);
+        else if (state.proBans.length < 8 && word !== state.proPick && word !== state.conPick) state.proBans.push(word);
+      }
+      if (mode === 'ban-con') {
+        if (state.conBans.includes(word)) state.conBans = state.conBans.filter(x => x !== word);
+        else if (state.conBans.length < 8 && word !== state.proPick && word !== state.conPick) state.conBans.push(word);
+      }
+      if (mode === 'pick-pro') {
+        if (!isBanned(word)) state.proPick = word;
+      }
+      if (mode === 'pick-con') {
+        if (!isBanned(word)) state.conPick = word;
+      }
+      updateTopic();
+      render();
+    }
+
+    function removeBan(side, word) {
+      state[side] = state[side].filter(x => x !== word);
+      render();
+    }
+
+    function clearPick(side) {
+      state[side] = '';
+      updateTopic();
+      render();
+    }
+
+    function chip(text, cls = '', onClick = '') {
+      return `<span class="chip ${cls}" onclick="${onClick}">${text}</span>`;
+    }
+
+    function renderSlots(id, arr, sideKey) {
+      const el = document.getElementById(id);
+      el.innerHTML = arr.length ? arr.map(w => chip(w, '', `removeBan('${sideKey}','${w}')`)).join('') : '<div class="empty">暂无</div>';
+    }
+
+    function renderPick(id, word, sideKey) {
+      const el = document.getElementById(id);
+      el.innerHTML = word ? chip(word, sideKey === 'proPick' ? 'selected-pro' : 'selected-con', `clearPick('${sideKey}')`) : '<div class="empty">尚未选择</div>';
+    }
+
+    function render() {
+      const bank = document.getElementById('wordBank');
+      bank.innerHTML = words.map(word => {
+        let cls = '';
+        if (state.proBans.includes(word)) cls = 'banned-pro';
+        if (state.conBans.includes(word)) cls = 'banned-con';
+        if (state.proPick === word) cls = 'selected-pro';
+        if (state.conPick === word) cls = 'selected-con';
+        if ((mode === 'pick-pro' || mode === 'pick-con') && isBanned(word)) cls += ' disabled';
+        return chip(word, cls, `clickWord('${word}')`);
+      }).join('');
+
+      renderSlots('proBans', state.proBans, 'proBans');
+      renderSlots('conBans', state.conBans, 'conBans');
+      renderPick('proPick', state.proPick, 'proPick');
+      renderPick('conPick', state.conPick, 'conPick');
+    }
+
+    function updateTopic() {
+      document.getElementById('topicLeft').textContent = state.proPick || 'XX';
+      document.getElementById('topicRight').textContent = state.conPick || 'XX';
+    }
+
+    function judge() {
+      const result = document.getElementById('result');
+      const ps = Number(document.getElementById('proScore').value || 0);
+      const cs = Number(document.getElementById('conScore').value || 0);
+      result.classList.add('show');
+
+      if (!state.proPick || !state.conPick) {
+        result.innerHTML = '<strong>还不能判定</strong><p>正反双方都需要先选择一个词语。</p>';
+        return;
+      }
+      if (state.proPick !== state.conPick) {
+        result.innerHTML = `<strong>选词有效</strong><p>当前辩题为：${state.proPick} / ${state.conPick} 更能回应世界。</p>`;
+        return;
+      }
+      const loser = ps === cs ? '双方点数相同，需要人工协商或重新投点' : (ps < cs ? '正方' : '反方');
+      result.innerHTML = `<strong>双方选词相同</strong><p>重复词为“${state.proPick}”。按照规则，应由段子点数较小的一方更换词汇：${loser}。</p>`;
+    }
+
+    function makeExportText() {
+      const text = [
+        '辩题 4：' + (state.proPick || 'XX') + ' / ' + (state.conPick || 'XX') + ' 更能回应世界',
+        '',
+        '正方 ban 词：' + (state.proBans.join('、') || '暂无'),
+        '反方 ban 词：' + (state.conBans.join('、') || '暂无'),
+        '',
+        '正方选词：' + (state.proPick || '暂无'),
+        '反方选词：' + (state.conPick || '暂无'),
+        '',
+        '正方段子点数：' + document.getElementById('proScore').value,
+        '反方段子点数：' + document.getElementById('conScore').value
+      ].join('\n');
+      document.getElementById('exportText').textContent = text;
+    }
+
+    async function copyExportText() {
+      makeExportText();
+      const text = document.getElementById('exportText').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('已复制');
+      } catch (e) {
+        alert('浏览器不允许自动复制，请手动选中文本复制');
+      }
+    }
+
+    function randomTopic() {
+      const available = words.filter(w => !isBanned(w));
+      if (available.length < 2) return;
+      const first = available[Math.floor(Math.random() * available.length)];
+      let second = available[Math.floor(Math.random() * available.length)];
+      while (second === first && available.length > 1) second = available[Math.floor(Math.random() * available.length)];
+      state.proPick = first;
+      state.conPick = second;
+      updateTopic();
+      render();
+    }
+
+    function resetAll() {
+      state.proBans = [];
+      state.conBans = [];
+      state.proPick = '';
+      state.conPick = '';
+      document.getElementById('result').classList.remove('show');
+      document.getElementById('exportText').textContent = '点击“生成同步文本”后，这里会出现整理结果。';
+      updateTopic();
+      render();
+    }
+
+    loadWords();
+  </script>
+</body>
+</html>
